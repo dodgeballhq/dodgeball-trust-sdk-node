@@ -4,14 +4,13 @@ import {
   IDodgeballIdentifyResponse,
   IDodgeballTrackResponse,
   IDodgeballVerifyResponse,
-  IEvent,
   ITrackOptions,
-  IVerifyResponseOptions,
   IVerifyOptions,
+  IVerifyResponseOptions,
   VerificationOutcome,
   VerificationStatus,
 } from "./types";
-import { constructApiHeaders, constructApiUrl, makeRequest } from "./utilities";
+import {constructApiHeaders, constructApiUrl, makeRequest} from "./utilities";
 
 const DEFAULT_CONFIG: IDodgeballConfig = {
   apiVersion: ApiVersion.v1,
@@ -89,10 +88,13 @@ export class Dodgeball {
 
     let numRepeats = 0
     let isResolved = false
-    let response: any = null
+    let response: IDodgeballVerifyResponse | null = null
+    let numFailures = 0
 
     // @ts-ignore
-    while((trivialTimeout || options?.timeout > numRepeats*activeTimeout) &&!isResolved) {
+    while((trivialTimeout || options?.timeout > numRepeats*activeTimeout) &&
+      !isResolved &&
+        numFailures < 3) {
       // Verify the event, expecting an acknowledgement containing details for tracking the asynchronous response
       response = (await makeRequest({
         url: `${constructApiUrl(
@@ -111,10 +113,24 @@ export class Dodgeball {
         },
       })) as IDodgeballVerifyResponse;
 
-      isResolved = response.body.
+      if(response && response.success){
+        let status = response.verification?.status
+        if(!status){
+          numFailures += 1
+        }
+        else{
+          isResolved = (status === VerificationStatus.COMPLETE) ||
+              (status === VerificationStatus.FAILED)
+
+          numRepeats += 1
+        }
+      }
+      else{
+        numFailures += 1
+      }
     }
 
-    return response;
+    return response as IDodgeballVerifyResponse;
   }
 
   public isPending(verifyResponse: IDodgeballVerifyResponse): boolean {
