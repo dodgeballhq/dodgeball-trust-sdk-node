@@ -15,6 +15,7 @@ export const makeRequest = async ({ url, method, headers, data }: IRequestParams
       url,
       headers,
       data,
+      timeout: data?.timeout ?? 0
     });
     return response.data;
   } catch (error) {

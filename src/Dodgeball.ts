@@ -6,6 +6,7 @@ import {
   IDodgeballVerifyResponse,
   IEvent,
   ITrackOptions,
+  IVerifyResponseOptions,
   IVerifyOptions,
   VerificationOutcome,
   VerificationStatus,
@@ -16,6 +17,8 @@ const DEFAULT_CONFIG: IDodgeballConfig = {
   apiVersion: ApiVersion.v1,
   apiUrl: "https://api.dodgeballhq.com/",
 };
+
+const BASE_VERIFY_TIMEOUT_MS = 100
 
 // Export a class that accepts a config object
 export class Dodgeball {
@@ -72,23 +75,44 @@ export class Dodgeball {
     useVerification,
     options,
   }: IVerifyOptions): Promise<IDodgeballVerifyResponse> {
-    // Verify the event, expecting an acknowledgement containing details for tracking the asynchronous response
-    const response = (await makeRequest({
-      url: `${constructApiUrl(
-        this.config.apiUrl as string,
-        this.config.apiVersion
-      )}verify`,
-      method: "POST",
-      headers: constructApiHeaders(
-        this.secretKey,
-        useVerification?.id,
-        dodgeballId
-      ),
-      data: {
-        event: workflow,
-        options: options,
-      },
-    })) as IDodgeballVerifyResponse;
+
+    let trivialTimeout = !options.timeout || options.timeout <= 0;
+    let largeTimeout = options.timeout && options.timeout > 5*BASE_VERIFY_TIMEOUT_MS
+    let mustPoll = trivialTimeout || largeTimeout
+    let activeTimeout = mustPoll? BASE_VERIFY_TIMEOUT_MS: options.timeout
+
+    let internalOptions: IVerifyResponseOptions = {
+      sync: false,
+      timeout: activeTimeout,
+      webhook: options.webhook
+    }
+
+    let numRepeats = 0
+    let isResolved = false
+    let response: any = null
+
+    // @ts-ignore
+    while((trivialTimeout || options?.timeout > numRepeats*activeTimeout) &&!isResolved) {
+      // Verify the event, expecting an acknowledgement containing details for tracking the asynchronous response
+      response = (await makeRequest({
+        url: `${constructApiUrl(
+            this.config.apiUrl as string,
+            this.config.apiVersion
+        )}verify`,
+        method: "POST",
+        headers: constructApiHeaders(
+            this.secretKey,
+            useVerification?.id,
+            dodgeballId
+        ),
+        data: {
+          event: workflow,
+          options: options,
+        },
+      })) as IDodgeballVerifyResponse;
+
+      isResolved = response.body.
+    }
 
     return response;
   }
