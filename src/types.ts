@@ -3,8 +3,17 @@ export enum ApiVersion {
 }
 
 export enum VerificationStatus {
+
+  // In Process on the server
   PENDING = "PENDING",
+
+  // Waiting on some action, for example MFA
+  BLOCKED = "BLOCKED",
+
+  // Workflow evaluated successfully
   COMPLETE = "COMPLETE",
+
+  // Workflow execution failure
   FAILED = "FAILED",
 }
 

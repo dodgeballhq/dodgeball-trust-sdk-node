@@ -10,7 +10,7 @@ import {
   VerificationOutcome,
   VerificationStatus,
 } from "./types";
-import {constructApiHeaders, constructApiUrl, makeRequest} from "./utilities";
+import {constructApiHeaders, constructApiUrl, makeRequest, sleep} from "./utilities";
 
 const DEFAULT_CONFIG: IDodgeballConfig = {
   apiVersion: ApiVersion.v1,
@@ -68,6 +68,19 @@ export class Dodgeball {
     return response;
   }
 
+  createErrorResponse(code: number, message: string){
+    return {
+      success: false,
+      errors: [{code: code, message: message}],
+      version: ApiVersion.v1,
+      verification: {
+        id: "",
+        status: VerificationStatus.FAILED,
+        outcome: VerificationOutcome.ERROR
+      }
+    }
+  }
+
   public async verify({
     workflow,
     dodgeballId,
@@ -86,16 +99,11 @@ export class Dodgeball {
       webhook: options.webhook
     }
 
-    let numRepeats = 0
-    let isResolved = false
     let response: IDodgeballVerifyResponse | null = null
+    let numRepeats = 0
     let numFailures = 0
 
-    // @ts-ignore
-    while((trivialTimeout || options?.timeout > numRepeats*activeTimeout) &&
-      !isResolved &&
-        numFailures < 3) {
-      // Verify the event, expecting an acknowledgement containing details for tracking the asynchronous response
+    while(!response && numRepeats < 3) {
       response = (await makeRequest({
         url: `${constructApiUrl(
             this.config.apiUrl as string,
@@ -109,9 +117,44 @@ export class Dodgeball {
         ),
         data: {
           event: workflow,
-          options: options,
+          options: internalOptions,
         },
+      options: {}
       })) as IDodgeballVerifyResponse;
+
+      numRepeats += 1
+    }
+
+    if(!response) {
+      return this.createErrorResponse(500, "Unknown evaluation error")
+    } else if(!response.success){
+      return response
+    }
+
+    let isResolved = response.verification.status !== VerificationStatus.PENDING
+    let verificationId = response.verification.id
+
+    // @ts-ignore
+    while((trivialTimeout || options?.timeout > numRepeats*activeTimeout) &&
+      !isResolved &&
+        numFailures < 3) {
+
+      await sleep(BASE_VERIFY_TIMEOUT_MS)
+      console.log("numRepeats: ", numRepeats)
+      console.log("numFailures: ", numFailures)
+
+      response = await makeRequest({
+        url: `${constructApiUrl(
+            this.config.apiUrl as string,
+            this.config.apiVersion
+        )}verification/${verificationId}`,
+        method: "GET",
+        headers: constructApiHeaders(
+            this.secretKey,
+            useVerification?.id,
+            dodgeballId
+        ),
+      }) as IDodgeballVerifyResponse;
 
       if(response && response.success){
         let status = response.verification?.status
@@ -119,17 +162,21 @@ export class Dodgeball {
           numFailures += 1
         }
         else{
-          isResolved = (status === VerificationStatus.COMPLETE) ||
-              (status === VerificationStatus.FAILED)
-
+          isResolved = (status !== VerificationStatus.PENDING)
           numRepeats += 1
         }
       }
-      else{
+      else {
         numFailures += 1
       }
+
+      console.log("response", response)
+      console.log("isResolved", isResolved)
+      console.log("numRepeats: ", numRepeats)
+      console.log("numFailures: ", numFailures)
     }
 
+    console.log("Returning response:", response)
     return response as IDodgeballVerifyResponse;
   }
 
@@ -137,6 +184,7 @@ export class Dodgeball {
     if (verifyResponse.success) {
       switch (verifyResponse.verification.status) {
         case VerificationStatus.PENDING:
+        case VerificationStatus.BLOCKED:
           return true;
         default:
           return false;
