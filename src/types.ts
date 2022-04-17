@@ -10,6 +10,9 @@ export enum VerificationStatus {
   // Waiting on some action, for example MFA
   BLOCKED = "BLOCKED",
 
+  // Waiting for input from the application
+  REQUIRES_INPUT = "REQUIRES_INPUT",
+
   // Workflow evaluated successfully
   COMPLETE = "COMPLETE",
 

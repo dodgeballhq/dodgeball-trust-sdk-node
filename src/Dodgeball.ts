@@ -184,7 +184,21 @@ export class Dodgeball {
     if (verifyResponse.success) {
       switch (verifyResponse.verification.status) {
         case VerificationStatus.PENDING:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    return false;
+  }
+
+  public isExecuting(verifyResponse: IDodgeballVerifyResponse): boolean {
+    if (verifyResponse.success) {
+      switch (verifyResponse.verification.status) {
+        case VerificationStatus.PENDING:
         case VerificationStatus.BLOCKED:
+        case VerificationStatus.REQUIRES_INPUT:
           return true;
         default:
           return false;

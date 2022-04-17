@@ -13,6 +13,7 @@ export const makeRequest = async ({ url, method, headers, data, options }: IRequ
   try {
     // Allows for separate timeout enforcement at the DB Server vs Axios layer
     let timeout = options? options.timeout ?? 0: data?.timeout ?? 0
+    console.log("Axios timeout: ", timeout)
 
     const response = await axios({
       method,
