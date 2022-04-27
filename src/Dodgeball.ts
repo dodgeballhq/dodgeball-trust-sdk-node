@@ -91,7 +91,8 @@ export class Dodgeball {
     let trivialTimeout = !options.timeout || options.timeout <= 0;
     let largeTimeout = options.timeout && options.timeout > 5*BASE_VERIFY_TIMEOUT_MS
     let mustPoll = trivialTimeout || largeTimeout
-    let activeTimeout = mustPoll? BASE_VERIFY_TIMEOUT_MS: options.timeout
+    let activeTimeout = mustPoll? BASE_VERIFY_TIMEOUT_MS: options.timeout ?? BASE_VERIFY_TIMEOUT_MS
+    let maximalTimeout = 10000
 
     let internalOptions: IVerifyResponseOptions = {
       sync: false,
@@ -139,9 +140,8 @@ export class Dodgeball {
       !isResolved &&
         numFailures < 3) {
 
-      await sleep(BASE_VERIFY_TIMEOUT_MS)
-      console.log("numRepeats: ", numRepeats)
-      console.log("numFailures: ", numFailures)
+      await sleep(activeTimeout )
+      activeTimeout = activeTimeout < maximalTimeout? 2*activeTimeout: activeTimeout
 
       response = await makeRequest({
         url: `${constructApiUrl(
@@ -169,28 +169,10 @@ export class Dodgeball {
       else {
         numFailures += 1
       }
-
-      console.log("response", response)
-      console.log("isResolved", isResolved)
-      console.log("numRepeats: ", numRepeats)
-      console.log("numFailures: ", numFailures)
     }
 
     console.log("Returning response:", response)
     return response as IDodgeballVerifyResponse;
-  }
-
-  public isPending(verifyResponse: IDodgeballVerifyResponse): boolean {
-    if (verifyResponse.success) {
-      switch (verifyResponse.verification.status) {
-        case VerificationStatus.PENDING:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    return false;
   }
 
   public isExecuting(verifyResponse: IDodgeballVerifyResponse): boolean {
@@ -209,27 +191,9 @@ export class Dodgeball {
   }
 
   public isAllowed(verifyResponse: IDodgeballVerifyResponse): boolean {
-    if (verifyResponse.success) {
-      // switch (verifyResponse.verification.status) {
-      //   case VerificationStatus.COMPLETE:
-      //     switch (verifyResponse.verification.outcome) {
-      //       case VerificationOutcome.APPROVED:
-      //         return true;
-      //       default:
-      //         return false;
-      //     }
-      //   default:
-      //     return false;
-      // }
-      switch (verifyResponse.verification.outcome) {
-        case VerificationOutcome.APPROVED:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    return false;
+    return verifyResponse.success &&
+        verifyResponse.verification?.status === VerificationStatus.COMPLETE &&
+        verifyResponse.verification?.outcome === VerificationOutcome.APPROVED;
   }
 
   public isDenied(verifyResponse: IDodgeballVerifyResponse): boolean {
