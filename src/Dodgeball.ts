@@ -175,7 +175,7 @@ export class Dodgeball {
     return response as IDodgeballVerifyResponse;
   }
 
-  public isExecuting(verifyResponse: IDodgeballVerifyResponse): boolean {
+  public isRunning(verifyResponse: IDodgeballVerifyResponse): boolean {
     if (verifyResponse.success) {
       switch (verifyResponse.verification.status) {
         case VerificationStatus.PENDING:
