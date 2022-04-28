@@ -92,7 +92,7 @@ export class Dodgeball {
     let largeTimeout = options.timeout && options.timeout > 5*BASE_VERIFY_TIMEOUT_MS
     let mustPoll = trivialTimeout || largeTimeout
     let activeTimeout = mustPoll? BASE_VERIFY_TIMEOUT_MS: options.timeout ?? BASE_VERIFY_TIMEOUT_MS
-    let maximalTimeout = 10000
+    let maximalTimeout = 1000
 
     let internalOptions: IVerifyResponseOptions = {
       sync: false,
