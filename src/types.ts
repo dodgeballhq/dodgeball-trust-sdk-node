@@ -3,8 +3,20 @@ export enum ApiVersion {
 }
 
 export enum VerificationStatus {
+
+  // In Process on the server
   PENDING = "PENDING",
+
+  // Waiting on some action, for example MFA
+  BLOCKED = "BLOCKED",
+
+  // Waiting for input from the application
+  REQUIRES_INPUT = "REQUIRES_INPUT",
+
+  // Workflow evaluated successfully
   COMPLETE = "COMPLETE",
+
+  // Workflow execution failure
   FAILED = "FAILED",
 }
 
@@ -31,6 +43,14 @@ export interface ITrackOptions {
   dodgeballId: string;
 }
 
+export interface IVerifyResponseOptions{
+  sync?: boolean;
+  timeout?: number;
+  webhook?: {
+    url: string;
+  };
+}
+
 export interface IVerifyOptions {
   workflow: IEvent;
   dodgeballId: string;
@@ -38,13 +58,7 @@ export interface IVerifyOptions {
     // This is a previous verification (workflowExecution) we want to attempt to use.
     id: string;
   };
-  options: {
-    sync?: boolean;
-    timeout?: number;
-    webhook?: {
-      url: string;
-    };
-  };
+  options: IVerifyResponseOptions;
 }
 
 export interface IDodgeballApiError {

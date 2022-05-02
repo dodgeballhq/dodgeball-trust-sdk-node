@@ -1,24 +1,31 @@
 import axios, { Method } from "axios";
 
+import { Logger } from "./logger"
+
 interface IRequestParams {
   url: string;
   method: Method;
   headers: any;
-  data: any;
+  data?: any;
+  options?: any
 }
 
 // function to wrap axios requests
-export const makeRequest = async ({ url, method, headers, data }: IRequestParams): Promise<any> => {
+export const makeRequest = async ({ url, method, headers, data, options }: IRequestParams): Promise<any> => {
   try {
+    // Allows for separate timeout enforcement at the DB Server vs Axios layer
+    let timeout = options? options.timeout ?? 0: data?.timeout ?? 0
+
     const response = await axios({
       method,
       url,
       headers,
       data,
+      timeout: timeout
     });
     return response.data;
   } catch (error) {
-    console.log(error);
+    Logger.error("makeRequest", error).log();
     return error;
   }
 };
@@ -58,3 +65,7 @@ export const constructApiHeaders = (
 
   return headers;
 };
+
+export const sleep = (ms:number) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
