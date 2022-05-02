@@ -10,6 +10,8 @@ import {
   VerificationOutcome,
   VerificationStatus,
 } from "./types";
+
+import { Logger } from "./logger"
 import {constructApiHeaders, constructApiUrl, makeRequest, sleep} from "./utilities";
 
 const DEFAULT_CONFIG: IDodgeballConfig = {
@@ -91,7 +93,10 @@ export class Dodgeball {
     let trivialTimeout = !options.timeout || options.timeout <= 0;
     let largeTimeout = options.timeout && options.timeout > 5*BASE_VERIFY_TIMEOUT_MS
     let mustPoll = trivialTimeout || largeTimeout
-    let activeTimeout = mustPoll? BASE_VERIFY_TIMEOUT_MS: options.timeout ?? BASE_VERIFY_TIMEOUT_MS
+    let activeTimeout = mustPoll ?
+        BASE_VERIFY_TIMEOUT_MS :
+        options.timeout ?? BASE_VERIFY_TIMEOUT_MS
+
     let maximalTimeout = 1000
 
     let internalOptions: IVerifyResponseOptions = {
@@ -140,8 +145,8 @@ export class Dodgeball {
       !isResolved &&
         numFailures < 3) {
 
-      await sleep(activeTimeout )
-      activeTimeout = activeTimeout < maximalTimeout? 2*activeTimeout: activeTimeout
+      await sleep(activeTimeout)
+      activeTimeout = activeTimeout < maximalTimeout ? 2*activeTimeout : activeTimeout
 
       response = await makeRequest({
         url: `${constructApiUrl(
@@ -171,7 +176,7 @@ export class Dodgeball {
       }
     }
 
-    console.log("Returning response:", response)
+   Logger.trace("Returning response:", {response: response}).log()
     return response as IDodgeballVerifyResponse;
   }
 

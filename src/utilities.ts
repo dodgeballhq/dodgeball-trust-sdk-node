@@ -1,5 +1,7 @@
 import axios, { Method } from "axios";
 
+import { Logger } from "./logger"
+
 interface IRequestParams {
   url: string;
   method: Method;
@@ -23,7 +25,7 @@ export const makeRequest = async ({ url, method, headers, data, options }: IRequ
     });
     return response.data;
   } catch (error) {
-    console.log(error);
+    Logger.error("makeRequest", error).log();
     return error;
   }
 };
