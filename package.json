@@ -1,6 +1,6 @@
 {
   "name": "@dodgeball/trust-sdk-server",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Dodgeball Server SDK",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -24,7 +24,9 @@
   },
   "watch": {
     "build": {
-      "patterns": ["src"],
+      "patterns": [
+        "src"
+      ],
       "extensions": "ts",
       "ignore": [
         "dist",
@@ -33,7 +35,9 @@
       "quite": true
     },
     "link": {
-      "patterns": ["dist/types"],
+      "patterns": [
+        "dist/types"
+      ],
       "extensions": "ts",
       "ignore": [
         "src",
