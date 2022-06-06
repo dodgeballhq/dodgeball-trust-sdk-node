@@ -1,27 +1,33 @@
 import axios, { Method } from "axios";
 
-import { Logger } from "./logger"
+import { Logger } from "./logger";
 
 interface IRequestParams {
   url: string;
   method: Method;
   headers: any;
   data?: any;
-  options?: any
+  options?: any;
 }
 
 // function to wrap axios requests
-export const makeRequest = async ({ url, method, headers, data, options }: IRequestParams): Promise<any> => {
+export const makeRequest = async ({
+  url,
+  method,
+  headers,
+  data,
+  options,
+}: IRequestParams): Promise<any> => {
   try {
     // Allows for separate timeout enforcement at the DB Server vs Axios layer
-    let timeout = options? options.timeout ?? 0: data?.timeout ?? 0
+    let timeout = options ? options.timeout ?? 0 : data?.timeout ?? 0;
 
     const response = await axios({
       method,
       url,
       headers,
       data,
-      timeout: timeout
+      timeout: timeout,
     });
     return response.data;
   } catch (error) {
@@ -38,14 +44,14 @@ export const constructApiUrl = (url: string, version: string) => {
   }
 
   return `${url}${version}/`;
-}
+};
 
 // function to construct api request headers
 export const constructApiHeaders = (
   token: string,
   verificationId = "",
   sourceId = "",
-  customSourceId = ""
+  customerId = ""
 ) => {
   let headers: { [key: string]: string } = {
     "Dodgeball-Secret-Key": `${token}`,
@@ -59,13 +65,13 @@ export const constructApiHeaders = (
     headers["Dodgeball-Source-Id"] = sourceId;
   }
 
-  if (customSourceId) {
-    headers["Dodgeball-Custom-Source-Id"] = customSourceId;
+  if (customerId) {
+    headers["Dodgeball-Customer-Id"] = customerId;
   }
 
   return headers;
 };
 
-export const sleep = (ms:number) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+export const sleep = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};

@@ -1,17 +1,15 @@
+import { LogLevel } from "./logger";
+
 export enum ApiVersion {
   v1 = "v1",
 }
 
 export enum VerificationStatus {
-
   // In Process on the server
   PENDING = "PENDING",
 
   // Waiting on some action, for example MFA
   BLOCKED = "BLOCKED",
-
-  // Waiting for input from the application
-  REQUIRES_INPUT = "REQUIRES_INPUT",
 
   // Workflow evaluated successfully
   COMPLETE = "COMPLETE",
@@ -29,21 +27,16 @@ export enum VerificationOutcome {
 
 export interface IDodgeballConfig {
   apiVersion: ApiVersion;
-  apiUrl?: string; // For customers with completely isolated (self-hosted) distributions, they will need to supply a URL to the API.
+  apiUrl?: string; // For completely isolated (self-hosted) distributions, you will need to supply a URL to the API.
+  logLevel?: LogLevel;
 }
 
 export interface IEvent {
   ip: string;
-  type: string;
   data: { [key: string]: any };
 }
 
-export interface ITrackOptions {
-  event: IEvent;
-  dodgeballId: string;
-}
-
-export interface IVerifyResponseOptions{
+export interface ICheckpointResponseOptions {
   sync?: boolean;
   timeout?: number;
   webhook?: {
@@ -51,32 +44,16 @@ export interface IVerifyResponseOptions{
   };
 }
 
-export interface IVerifyOptions {
-  workflow: IEvent;
+export interface ICheckpointOptions {
+  checkpointName: string;
+  event: IEvent;
   dodgeballId: string;
-  useVerification?: {
-    // This is a previous verification (workflowExecution) we want to attempt to use.
-    id: string;
-  };
-  options: IVerifyResponseOptions;
+  userId?: string;
+  useVerificationId?: string;
+  options?: ICheckpointResponseOptions;
 }
 
-export interface IDodgeballApiError {
-  code: number;
-  message: string;
-}
-
-export interface IDodgeballIdentifyResponse {
-  id: string;
-}
-
-export interface IDodgeballTrackResponse {
-  success: boolean;
-  errors: IDodgeballApiError[];
-  version: ApiVersion;
-}
-
-export interface IDodgeballVerifyResponse {
+export interface IDodgeballCheckpointResponse {
   success: boolean;
   errors: IDodgeballApiError[];
   version: ApiVersion;
@@ -85,4 +62,39 @@ export interface IDodgeballVerifyResponse {
     status: VerificationStatus;
     outcome: VerificationOutcome;
   };
+}
+
+// Error Types
+export interface IDodgeballApiError {
+  code: number;
+  message: string;
+}
+
+export class DodgeballMissingConfigError extends Error {
+  constructor(configName: string, value: any) {
+    super(
+      `Dodgeball SDK Error\nMissing configuration: ${configName}\nProvided Value: ${value}`
+    );
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class DodgeballInvalidConfigError extends Error {
+  constructor(configName: string, value: any, allowedValues: any[]) {
+    super(
+      `Dodgeball SDK Error\nInvalid configuration: ${configName}\nProvided value: ${value}\nAllowed values: ${allowedValues.join(
+        ", "
+      )}`
+    );
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class DodgeballMissingParameterError extends Error {
+  constructor(parameter: string, value: any) {
+    super(
+      `Dodgeball SDK Error\nMissing parameter: ${parameter}\nProvided value: ${value}`
+    );
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
 }
