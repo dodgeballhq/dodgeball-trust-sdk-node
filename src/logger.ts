@@ -73,7 +73,7 @@ export class Logger {
   }
 
   public static trace(message: string, parameters?: LogEntryParameters) {
-    return new LogEntry(message, Severity.INFO).setParameters(parameters);
+    return new LogEntry(message, Severity.TRACE).setParameters(parameters);
   }
 
   public static error(message: string, error?: any) {
