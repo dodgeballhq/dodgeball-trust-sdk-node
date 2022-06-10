@@ -57,7 +57,11 @@ export const constructApiHeaders = (
     "Dodgeball-Secret-Key": `${token}`,
   };
 
-  if (verificationId) {
+  if (
+    verificationId &&
+    verificationId !== "null" &&
+    verificationId !== "undefined"
+  ) {
     headers["Dodgeball-Verification-Id"] = `${verificationId}`;
   }
 

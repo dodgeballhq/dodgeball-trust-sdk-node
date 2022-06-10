@@ -73,7 +73,7 @@ app.post('/api/orders', async (req, res) => {
     return res.status(200).json({
       order: placedOrder
     });
-  } else if (dodgeball.isPending(checkpointResponse)) {
+  } else if (dodgeball.isRunning(checkpointResponse)) {
     // If the outcome is pending, send the verification to the frontend to do additional checks (such as MFA, KYC)
     return res.status(202).json({
       verification: checkpointResponse.verification
@@ -199,7 +199,7 @@ const checkpointResponse = {
 
 #### Possible Checkpoint Responses
 
-##### Allowed
+##### Approved
 ```js
 const checkpointResponse = {
   success: true,
@@ -227,7 +227,7 @@ const checkpointResponse = {
   }
 };
 ```
-When a request is denied, verification status will be `COMPLETE` and `outcome` will be `DENIED`.
+When a request is denied, verification `status` will be `COMPLETE` and `outcome` will be `DENIED`.
 
 ##### Pending
 ```js
@@ -304,8 +304,8 @@ The `isAllowed` method takes in a checkpoint response and returns `true` if the 
 #### `dodgeball.isDenied(checkpointResponse)`
 The `isDenied` method takes in a checkpoint response and returns `true` if the request is denied and should not be allowed to proceed.
 
-#### `dodgeball.isPending(checkpointResponse)`
-The `isPending` method takes in a checkpoint response and returns `true` if no determination has been reached on how to proceed. The verification should be returned to the frontend application to gather additional input from the user. See the [useVerification](#useverification) section for more details on use and an end-to-end example.
+#### `dodgeball.isRunning(checkpointResponse)`
+The `isRunning` method takes in a checkpoint response and returns `true` if no determination has been reached on how to proceed. The verification should be returned to the frontend application to gather additional input from the user. See the [useVerification](#useverification) section for more details on use and an end-to-end example.
 
 #### `dodgeball.isUndecided(checkpointResponse)`
 The `isUndecided` method takes in a checkpoint response and returns `true` if the verification has finished and no determination has been reached on how to proceed. See [undecided](#undecided) for more details.
@@ -376,7 +376,7 @@ app.post('/api/orders', async (req, res) => {
     return res.status(200).json({
       order: placedOrder
     });
-  } else if (dodgeball.isPending(checkpointResponse)) {
+  } else if (dodgeball.isRunning(checkpointResponse)) {
     // If the outcome is pending, send the verification to the frontend to do additional checks (such as MFA, KYC)
     return res.status(202).json({
       verification: checkpointResponse.verification
