@@ -18,7 +18,12 @@ import {
   makeRequest,
   sleep,
 } from "./utilities";
-import { DEFAULT_CONFIG, BASE_CHECKPOINT_TIMEOUT_MS } from "./constants";
+import {
+  DEFAULT_CONFIG,
+  BASE_CHECKPOINT_TIMEOUT_MS,
+  MAX_RETRY_COUNT,
+  MAX_TIMEOUT,
+} from "./constants";
 
 import cloneDeep from "lodash.clonedeep";
 
@@ -91,7 +96,7 @@ export class Dodgeball {
       ? BASE_CHECKPOINT_TIMEOUT_MS
       : options.timeout ?? BASE_CHECKPOINT_TIMEOUT_MS;
 
-    let maximalTimeout = 1000;
+    let maximalTimeout = MAX_TIMEOUT;
 
     let internalOptions: ICheckpointResponseOptions = {
       sync:
@@ -157,8 +162,8 @@ export class Dodgeball {
     }
 
     let isResolved =
-      response.verification.status !== VerificationStatus.PENDING;
-    let verificationId = response.verification.id;
+      response.verification?.status !== VerificationStatus.PENDING;
+    let verificationId = response.verification?.id;
 
     // @ts-ignore
     while (
@@ -166,7 +171,7 @@ export class Dodgeball {
         (options?.timeout ?? BASE_CHECKPOINT_TIMEOUT_MS) >
           numRepeats * activeTimeout) &&
       !isResolved &&
-      numFailures < 3
+      numFailures < MAX_RETRY_COUNT
     ) {
       await sleep(activeTimeout);
       activeTimeout =
@@ -199,13 +204,30 @@ export class Dodgeball {
       }
     }
 
+    if (numFailures >= MAX_RETRY_COUNT) {
+      Logger.error("Service Unavailable: Maximum retry count exceeded").log();
+      const timeoutResponse: IDodgeballCheckpointResponse = {
+        success: false,
+        version: ApiVersion.v1,
+        errors: [
+          {
+            code: 503,
+            message: "Service Unavailable: Maximum retry count exceeded",
+          },
+        ],
+        isTimeout: true,
+      };
+
+      return timeoutResponse;
+    }
+
     Logger.trace("Returning response:", { response: response }).log();
     return response as IDodgeballCheckpointResponse;
   }
 
   public isRunning(checkpointResponse: IDodgeballCheckpointResponse): boolean {
     if (checkpointResponse.success) {
-      switch (checkpointResponse.verification.status) {
+      switch (checkpointResponse.verification?.status) {
         case VerificationStatus.PENDING:
         case VerificationStatus.BLOCKED:
           return true;
@@ -227,7 +249,7 @@ export class Dodgeball {
 
   public isDenied(checkpointResponse: IDodgeballCheckpointResponse): boolean {
     if (checkpointResponse.success) {
-      switch (checkpointResponse.verification.outcome) {
+      switch (checkpointResponse.verification?.outcome) {
         case VerificationOutcome.DENIED:
           return true;
         default:
@@ -255,6 +277,12 @@ export class Dodgeball {
         checkpointResponse.verification?.outcome ===
           VerificationOutcome.ERROR) ||
         checkpointResponse.errors?.length > 0)
+    );
+  }
+
+  public isTimeout(checkpointResponse: IDodgeballCheckpointResponse): boolean {
+    return (
+      !checkpointResponse.success && (checkpointResponse.isTimeout as boolean)
     );
   }
 }

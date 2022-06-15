@@ -53,15 +53,18 @@ export interface ICheckpointOptions {
   options?: ICheckpointResponseOptions;
 }
 
+export interface IDodgeballVerification {
+  id: string;
+  status: VerificationStatus;
+  outcome: VerificationOutcome;
+}
+
 export interface IDodgeballCheckpointResponse {
   success: boolean;
   errors: IDodgeballApiError[];
   version: ApiVersion;
-  verification: {
-    id: string;
-    status: VerificationStatus;
-    outcome: VerificationOutcome;
-  };
+  verification?: IDodgeballVerification;
+  isTimeout?: boolean;
 }
 
 // Error Types
