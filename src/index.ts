@@ -1,3 +1,5 @@
-import { Dodgeball } from './Dodgeball'
+import { Dodgeball } from "./Dodgeball";
+import { DodgeballLogLevel } from "./logger";
+import { DodgeballApiVersion, IDodgeballConfig } from "./types";
 
-export { Dodgeball }
+export { Dodgeball, DodgeballLogLevel, DodgeballApiVersion, IDodgeballConfig };

@@ -1,5 +1,5 @@
 import {
-  ApiVersion,
+  DodgeballApiVersion,
   IDodgeballConfig,
   IDodgeballCheckpointResponse,
   ICheckpointOptions,
@@ -11,7 +11,7 @@ import {
   DodgeballInvalidConfigError,
 } from "./types";
 
-import { Logger, LogLevel, Severity } from "./logger";
+import { Logger, DodgeballLogLevel, Severity } from "./logger";
 import {
   constructApiHeaders,
   constructApiUrl,
@@ -45,22 +45,26 @@ export class Dodgeball {
     );
 
     if (
-      Object.keys(ApiVersion).indexOf(this.config.apiVersion as ApiVersion) < 0
+      Object.keys(DodgeballApiVersion).indexOf(
+        this.config.apiVersion as DodgeballApiVersion
+      ) < 0
     ) {
       throw new DodgeballInvalidConfigError(
         "config.apiVersion",
         this.config.apiVersion,
-        Object.keys(ApiVersion)
+        Object.keys(DodgeballApiVersion)
       );
     }
 
-    const logLevel = this.config.logLevel ?? LogLevel.INFO;
+    const logLevel = this.config.logLevel ?? DodgeballLogLevel.INFO;
 
-    if (Object.keys(LogLevel).indexOf(logLevel as LogLevel) < 0) {
+    if (
+      Object.keys(DodgeballLogLevel).indexOf(logLevel as DodgeballLogLevel) < 0
+    ) {
       throw new DodgeballInvalidConfigError(
         "config.logLevel",
         logLevel,
-        Object.keys(LogLevel)
+        Object.keys(DodgeballLogLevel)
       );
     }
 
@@ -71,7 +75,7 @@ export class Dodgeball {
     return {
       success: false,
       errors: [{ code: code, message: message }],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "",
         status: VerificationStatus.FAILED,
@@ -208,7 +212,7 @@ export class Dodgeball {
       Logger.error("Service Unavailable: Maximum retry count exceeded").log();
       const timeoutResponse: IDodgeballCheckpointResponse = {
         success: false,
-        version: ApiVersion.v1,
+        version: DodgeballApiVersion.v1,
         errors: [
           {
             code: 503,

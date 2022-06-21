@@ -6,8 +6,8 @@ import {
   VerificationStatus,
 } from "./../src/types";
 import { Dodgeball } from "../src/Dodgeball";
-import { LogLevel } from "../src/logger";
-import { ApiVersion, DodgeballMissingConfigError } from "../src/types";
+import { DodgeballLogLevel } from "../src/logger";
+import { DodgeballApiVersion, DodgeballMissingConfigError } from "../src/types";
 
 describe("constructor", () => {
   test("should require an API key", () => {
@@ -23,9 +23,9 @@ describe("constructor", () => {
 
   test("should accept a valid config object", () => {
     let dodgeball = new Dodgeball("test-secret-key", {
-      apiVersion: ApiVersion.v1,
+      apiVersion: DodgeballApiVersion.v1,
       apiUrl: "https://api.dodgeballhq.com/",
-      logLevel: LogLevel.TRACE,
+      logLevel: DodgeballLogLevel.TRACE,
     });
 
     expect(dodgeball).toBeInstanceOf(Dodgeball);
@@ -42,7 +42,7 @@ describe("constructor", () => {
   test("should fail with an invalid logLevel in the config object", () => {
     expect(() => {
       new Dodgeball("test-secret-key", {
-        apiVersion: ApiVersion.v1,
+        apiVersion: DodgeballApiVersion.v1,
         logLevel: "invalid" as any,
       });
     }).toThrow(DodgeballInvalidConfigError);
@@ -61,7 +61,7 @@ describe("isRunning", () => {
     checkpointResponse = {
       success: true,
       errors: [],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "test-verification-id",
         status: VerificationStatus.PENDING,
@@ -150,7 +150,7 @@ describe("isAllowed", () => {
     checkpointResponse = {
       success: true,
       errors: [],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "test-verification-id",
         status: VerificationStatus.PENDING,
@@ -239,7 +239,7 @@ describe("isDenied", () => {
     checkpointResponse = {
       success: true,
       errors: [],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "test-verification-id",
         status: VerificationStatus.PENDING,
@@ -328,7 +328,7 @@ describe("isUndecided", () => {
     checkpointResponse = {
       success: true,
       errors: [],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "test-verification-id",
         status: VerificationStatus.PENDING,
@@ -417,7 +417,7 @@ describe("hasError", () => {
     checkpointResponse = {
       success: true,
       errors: [],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "test-verification-id",
         status: VerificationStatus.PENDING,
@@ -506,7 +506,7 @@ describe("isTimeout", () => {
     checkpointResponse = {
       success: true,
       errors: [],
-      version: ApiVersion.v1,
+      version: DodgeballApiVersion.v1,
       verification: {
         id: "test-verification-id",
         status: VerificationStatus.PENDING,

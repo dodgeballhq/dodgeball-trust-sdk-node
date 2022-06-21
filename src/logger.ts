@@ -1,4 +1,4 @@
-export enum LogLevel {
+export enum DodgeballLogLevel {
   TRACE = "TRACE",
   INFO = "INFO",
   ERROR = "ERROR",
