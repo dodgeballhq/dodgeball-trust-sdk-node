@@ -50,8 +50,9 @@ export const constructApiUrl = (url: string, version: string) => {
 export const constructApiHeaders = (
   token: string,
   verificationId = "",
-  sourceId = "",
-  customerId = ""
+  sourceToken = "",
+  customerId = "",
+  sessionId = ""
 ) => {
   let headers: { [key: string]: string } = {
     "Dodgeball-Secret-Key": `${token}`,
@@ -65,12 +66,16 @@ export const constructApiHeaders = (
     headers["Dodgeball-Verification-Id"] = `${verificationId}`;
   }
 
-  if (sourceId) {
-    headers["Dodgeball-Source-Id"] = sourceId;
+  if (sourceToken) {
+    headers["Dodgeball-Source-Token"] = sourceToken;
   }
 
   if (customerId) {
     headers["Dodgeball-Customer-Id"] = customerId;
+  }
+
+  if (sessionId) {
+    headers["Dodgeball-Session-Id"] = sessionId;
   }
 
   return headers;

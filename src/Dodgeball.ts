@@ -87,8 +87,9 @@ export class Dodgeball {
   public async checkpoint({
     checkpointName,
     event,
-    dodgeballId,
+    sourceToken,
     userId = "",
+    sessionId = "",
     useVerificationId = "",
     options = {},
   }: ICheckpointOptions): Promise<IDodgeballCheckpointResponse> {
@@ -129,8 +130,12 @@ export class Dodgeball {
       throw new DodgeballMissingParameterError("event.ip", event.ip);
     }
 
-    if (dodgeballId == null) {
-      throw new DodgeballMissingParameterError("dodgeballId", dodgeballId);
+    if (sourceToken == null) {
+      throw new DodgeballMissingParameterError("sourceToken", sourceToken);
+    }
+
+    if (sessionId == null) {
+      throw new DodgeballMissingParameterError("sessionId", sessionId);
     }
 
     while (!response && numRepeats < 3) {
@@ -138,13 +143,14 @@ export class Dodgeball {
         url: `${constructApiUrl(
           this.config.apiUrl as string,
           this.config.apiVersion
-        )}verify`,
+        )}checkpoint`,
         method: "POST",
         headers: constructApiHeaders(
           this.secretKey,
           useVerificationId,
-          dodgeballId,
-          userId
+          sourceToken,
+          userId,
+          sessionId
         ),
         data: {
           event: {
@@ -190,8 +196,9 @@ export class Dodgeball {
         headers: constructApiHeaders(
           this.secretKey,
           useVerificationId,
-          dodgeballId,
-          userId
+          sourceToken,
+          userId,
+          sessionId
         ),
       })) as IDodgeballCheckpointResponse;
 
