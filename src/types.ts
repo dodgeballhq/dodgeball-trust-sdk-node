@@ -47,7 +47,8 @@ export interface ICheckpointResponseOptions {
 export interface ICheckpointOptions {
   checkpointName: string;
   event: IEvent;
-  dodgeballId: string;
+  sourceToken: string;
+  sessionId: string;
   userId?: string;
   useVerificationId?: string;
   options?: ICheckpointResponseOptions;
