@@ -29,6 +29,7 @@ export interface IDodgeballConfig {
   apiVersion: DodgeballApiVersion;
   apiUrl?: string; // For completely isolated (self-hosted) distributions, you will need to supply a URL to the API.
   logLevel?: DodgeballLogLevel;
+  isEnabled?: boolean;
 }
 
 export interface IEvent {

@@ -138,6 +138,21 @@ export class Dodgeball {
       throw new DodgeballMissingParameterError("sessionId", sessionId);
     }
 
+    if (!this.config.isEnabled) {
+      // Return a default verification response to allow for development without making requests
+      return {
+        success: true,
+        errors: [],
+        version: DodgeballApiVersion.v1,
+        verification: {
+          id: "DODGEBALL_IS_DISABLED",
+          status: VerificationStatus.COMPLETE,
+          outcome: VerificationOutcome.APPROVED,
+          stepData: {},
+        },
+      } as IDodgeballCheckpointResponse;
+    }
+
     while (!response && numRepeats < 3) {
       response = (await makeRequest({
         url: `${constructApiUrl(

@@ -5,6 +5,7 @@ export const DEFAULT_CONFIG: IDodgeballConfig = {
   apiVersion: DodgeballApiVersion.v1,
   apiUrl: "https://api.dodgeballhq.com/",
   logLevel: DodgeballLogLevel.TRACE,
+  isEnabled: true,
 };
 
 export const BASE_CHECKPOINT_TIMEOUT_MS = 100;
