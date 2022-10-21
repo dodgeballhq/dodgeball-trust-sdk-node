@@ -130,10 +130,6 @@ export class Dodgeball {
       throw new DodgeballMissingParameterError("event.ip", event.ip);
     }
 
-    if (sourceToken == null) {
-      throw new DodgeballMissingParameterError("sourceToken", sourceToken);
-    }
-
     if (sessionId == null) {
       throw new DodgeballMissingParameterError("sessionId", sessionId);
     }
