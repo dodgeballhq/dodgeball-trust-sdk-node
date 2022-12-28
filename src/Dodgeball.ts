@@ -9,6 +9,7 @@ import {
   DodgeballMissingParameterError,
   DodgeballMissingConfigError,
   DodgeballInvalidConfigError,
+  ITrackOptions,
 } from "./types";
 
 import { Logger, DodgeballLogLevel, Severity } from "./logger";
@@ -82,6 +83,38 @@ export class Dodgeball {
         outcome: VerificationOutcome.ERROR,
       },
     };
+  }
+
+  public async track({
+    userId,
+    sessionId,
+    sourceToken,
+    event,
+  }: ITrackOptions): Promise<void> {
+    if (!event.eventTime) {
+      event.eventTime = Date.now();
+    }
+
+    const response = await makeRequest({
+      url: `${constructApiUrl(
+        this.config.apiUrl as string,
+        this.config.apiVersion
+      )}track`,
+      method: "POST",
+      headers: constructApiHeaders(
+        this.secretKey,
+        "",
+        sourceToken,
+        userId,
+        sessionId
+      ),
+      data: {
+        ...event,
+      },
+      options: {},
+    });
+
+    return;
   }
 
   public async checkpoint({

@@ -32,9 +32,22 @@ export interface IDodgeballConfig {
   isEnabled?: boolean;
 }
 
-export interface IEvent {
+export interface ICheckpointEvent {
   ip: string;
   data: { [key: string]: any };
+}
+
+export interface ITrackEvent {
+  type: string; // The name of the event, may be any string under 256 characters, that indicates what took place
+  data: { [key: string]: any }; // Any arbitrary data they want to track. Will be digested into the Dodgeball Vocabulary
+  eventTime?: number; // ms since Epoch
+}
+
+export interface ITrackOptions {
+  event: ITrackEvent;
+  sessionId: string;
+  userId?: string;
+  sourceToken?: string;
 }
 
 export interface ICheckpointResponseOptions {
@@ -47,7 +60,7 @@ export interface ICheckpointResponseOptions {
 
 export interface ICheckpointOptions {
   checkpointName: string;
-  event: IEvent;
+  event: ICheckpointEvent;
   sourceToken: string;
   sessionId: string;
   userId?: string;

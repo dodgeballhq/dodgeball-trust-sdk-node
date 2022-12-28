@@ -31,7 +31,7 @@ export const makeRequest = async ({
     });
     return response.data;
   } catch (error) {
-    Logger.error("makeRequest", error).log();
+    Logger.error("There was an error making a request.", error).log();
     return error;
   }
 };
