@@ -124,14 +124,16 @@ ___
 Checkpoints represent key moments of risk in an application and at the core of how Dodgeball works. A checkpoint can represent any activity deemed to be a risk. Some common examples include: login, placing an order, redeeming a coupon, posting a review, changing bank account information, making a donation, transferring funds, creating a listing.
 
 ```js
-const checkpointResponse = dodgeball.checkpoint({
+const checkpointResponse = await dodgeball.checkpoint({
   checkpointName: "CHECKPOINT_NAME",
   event: {
     ip: "127.0.0.1", // The IP address of the device where the request originated
     data: {
       // Arbitrary data to send in to the checkpoint...
-      amount: 100,
-      currency: 'USD',
+      transaction: {
+        amount: 100,
+        currency: 'USD',
+      },
       paymentMethod: {
         token: 'ghi789'
       }
@@ -149,7 +151,7 @@ const checkpointResponse = dodgeball.checkpoint({
 | `event` | `true` | The event to send to the checkpoint. |
 | `event.ip` | `true` | The IP address of the device where the request originated. |
 | `event.data` | `false` | Object containing arbitrary data to send in to the checkpoint. |
-| `sourceToken` | `true` | A Dodgeball generated token representing the device making the request. Obtained from the [Dodgeball Trust Client SDK](https://npmjs.com/package/@dodgeball/trust-sdk-client). |
+| `sourceToken` | `false` | A Dodgeball generated token representing the device making the request. Obtained from the [Dodgeball Trust Client SDK](https://npmjs.com/package/@dodgeball/trust-sdk-client). |
 | `sessionId` | `true` | The current session ID of the request. |
 | `userId` | `false` | When you know the ID representing the user making the request in your database (ie after registration), pass it in here. Otherwise leave it blank. |
 | `useVerificationId` | `false` | If a previous verification was performed on this request, pass it in here. See the [useVerification](#useverification) section below for more details. |
@@ -324,6 +326,39 @@ ___
 Sometimes additional input is required from the user before making a determination about how to proceed. For example, if a user should be required to perform 2FA before being allowed to proceed, the checkpoint response will contain a verification with `status` of `BLOCKED` and  outcome of `PENDING`. In this scenario, you will want to return the verification to your frontend application. Inside your frontend application, you can pass the returned verification directly to the `dodgeball.handleVerification()` method to automatically handle gathering additional input from the user. Continuing with our 2FA example, the user would be prompted to select a phone number and enter a code sent to that number. Once the additional input is received, the frontend application should simply send along the ID of the verification performed to your API. Passing that verification ID to the `useVerification` option will allow that verification to be used for this checkpoint instead of creating a new one. This prevents duplicate verifications being performed on the user. 
 
 **Important Note:** To prevent replay attacks, each verification ID can only be passed to `useVerification` once.
+
+### Track an Event
+___
+You can track additional information about a user's journey by submitting tracking events from your server. This information will be added to the user's profile and is made available to checkpoints.
+
+```js
+await dodgeball.track({
+  event: {
+    type: "EVENT_NAME", // Can be any string you choose
+    data: {
+      // Arbitrary data to track...
+      transaction: {
+        amount: 100,
+        currency: 'USD',
+      },
+      paymentMethod: {
+        token: 'ghi789'
+      }
+    }
+  },
+  sourceToken: "abc123...", // Obtained from the Dodgeball Client SDK, represents the device making the request
+  sessionId: "session_def456", // The current session ID of the request
+  userId: "user_12345", // When you know the ID representing the user making the request in your database (ie after registration), pass it in here. Otherwise leave it blank.
+})
+```
+| Parameter | Required | Description |
+|:-- |:-- |:-- |
+| `event` | `true` | The event to track. |
+| `event.name` | `true` | A name representing where in the journey the user is. |
+| `event.data` | `false` | Object containing arbitrary data to track. |
+| `sourceToken` | `false` | A Dodgeball generated token representing the device making the request. Obtained from the [Dodgeball Trust Client SDK](https://npmjs.com/package/@dodgeball/trust-sdk-client). |
+| `sessionId` | `true` | The current session ID of the request. |
+| `userId` | `false` | When you know the ID representing the user making the request in your database (ie after registration), pass it in here. Otherwise leave it blank. |
 
 #### End-to-End Example
 ```js
