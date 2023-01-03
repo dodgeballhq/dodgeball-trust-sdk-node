@@ -354,7 +354,7 @@ await dodgeball.track({
 | Parameter | Required | Description |
 |:-- |:-- |:-- |
 | `event` | `true` | The event to track. |
-| `event.name` | `true` | A name representing where in the journey the user is. |
+| `event.type` | `true` | A name representing where in the journey the user is. |
 | `event.data` | `false` | Object containing arbitrary data to track. |
 | `sourceToken` | `false` | A Dodgeball generated token representing the device making the request. Obtained from the [Dodgeball Trust Client SDK](https://npmjs.com/package/@dodgeball/trust-sdk-client). |
 | `sessionId` | `true` | The current session ID of the request. |
