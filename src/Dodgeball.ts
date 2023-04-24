@@ -85,7 +85,7 @@ export class Dodgeball {
     };
   }
 
-  public async track({
+  public async event({
     userId,
     sessionId,
     sourceToken,

@@ -332,7 +332,7 @@ ___
 You can track additional information about a user's journey by submitting tracking events from your server. This information will be added to the user's profile and is made available to checkpoints.
 
 ```js
-await dodgeball.track({
+await dodgeball.event({
   event: {
     type: "EVENT_NAME", // Can be any string you choose
     data: {
