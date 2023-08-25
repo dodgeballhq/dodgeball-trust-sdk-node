@@ -164,7 +164,9 @@ export class Dodgeball {
     }
 
     if (sessionId == null) {
-      throw new DodgeballMissingParameterError("sessionId", sessionId);
+      if (!sourceToken || sourceToken === "") {
+        throw new DodgeballMissingParameterError("sessionId", sessionId);
+      }
     }
 
     if (!this.config.isEnabled) {
