@@ -45,7 +45,7 @@ export interface ITrackEvent {
 
 export interface ITrackOptions {
   event: ITrackEvent;
-  sessionId: string;
+  sessionId?: string;
   userId?: string;
   sourceToken?: string;
 }
@@ -61,8 +61,8 @@ export interface ICheckpointResponseOptions {
 export interface ICheckpointOptions {
   checkpointName: string;
   event: ICheckpointEvent;
-  sourceToken: string;
-  sessionId: string;
+  sourceToken?: string;
+  sessionId?: string;
   userId?: string;
   useVerificationId?: string;
   options?: ICheckpointResponseOptions;
